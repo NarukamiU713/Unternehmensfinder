@@ -61,13 +61,20 @@ const App: React.FC = () => {
         const data = await res.json();
         
         // Process data
-        const processed = data.map((c: any) => ({
-          ...c,
-          id: c.id || c.institutionId || Math.random().toString(36).substr(2, 9),
-          categories: categorizeCompany(c),
-          _distance: getDistanceToHda(c),
-          _foundedYear: getFoundedYear(c)
-        }));
+        const processed = data.map((c: any) => {
+          // Generate a stable ID if the API doesn't provide one to persist 'viewed' state correctly
+          const stableId = c.id || c.institutionId || (c.name 
+            ? c.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') 
+            : Math.random().toString(36).substr(2, 9));
+
+          return {
+            ...c,
+            id: stableId,
+            categories: categorizeCompany(c),
+            _distance: getDistanceToHda(c),
+            _foundedYear: getFoundedYear(c)
+          };
+        });
         
         setCompanies(processed);
       } catch (err: any) {
