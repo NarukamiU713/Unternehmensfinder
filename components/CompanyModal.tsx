@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { Company } from '../types';
 import { getCareerUrl, getLogoFallbacks, guessCompanyDomain } from '../utils';
-import { X, ExternalLink, MapPin, Phone, Mail, User, Info, Globe, Building, Building2, CheckSquare, Square } from 'lucide-react';
+import { X, ExternalLink, MapPin, Phone, Mail, User, Globe, Building, Building2, CheckSquare, Square, StickyNote } from 'lucide-react';
 
 interface CompanyModalProps {
   company: Company | null;
   isApplied: boolean;
   onToggleApplied: () => void;
+  note: string;
+  onUpdateNote: (text: string) => void;
   onClose: () => void;
 }
 
-const CompanyModal: React.FC<CompanyModalProps> = ({ company, isApplied, onToggleApplied, onClose }) => {
+const CompanyModal: React.FC<CompanyModalProps> = ({ company, isApplied, onToggleApplied, note, onUpdateNote, onClose }) => {
   const [logoErrorCount, setLogoErrorCount] = useState(0);
-  const [showDebug, setShowDebug] = useState(false);
 
   if (!company) return null;
 
@@ -129,7 +130,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, isApplied, onToggl
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-8 overflow-y-auto">
+        <div className="flex-1 p-8 overflow-y-auto flex flex-col">
           <div className="mb-6">
              <div className="flex flex-wrap gap-2 mb-3">
                {(company.categories || []).map((cat, i) => (
@@ -137,9 +138,6 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, isApplied, onToggl
                    {cat}
                  </span>
                ))}
-               <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500">
-                 ID: {company.id}
-               </span>
              </div>
              <h2 className="font-heading text-3xl font-bold text-slate-900 leading-tight">
                {company.name}
@@ -214,48 +212,18 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, isApplied, onToggl
               </div>
             )}
 
-             {/* Meta Info Grid */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-               {company.industry && (
-                 <div>
-                   <span className="text-xs text-slate-400 uppercase font-bold tracking-wider">Branche</span>
-                   <div className="text-slate-700 font-medium">{company.industry}</div>
-                 </div>
-               )}
-               {company.size && (
-                 <div>
-                   <span className="text-xs text-slate-400 uppercase font-bold tracking-wider">Größe</span>
-                   <div className="text-slate-700 font-medium">{company.size}</div>
-                 </div>
-               )}
-               {company.founded && (
-                 <div>
-                   <span className="text-xs text-slate-400 uppercase font-bold tracking-wider">Gründung</span>
-                   <div className="text-slate-700 font-medium">{company.founded}</div>
-                 </div>
-               )}
-            </div>
-
-            {/* Debug Toggle */}
-            <div className="pt-8 mt-auto">
-              <button 
-                onClick={() => setShowDebug(!showDebug)} 
-                className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors"
-              >
-                <Info size={12} />
-                {showDebug ? 'Debug ausblenden' : 'Debug anzeigen'}
-              </button>
-              
-              {showDebug && (
-                <div className="mt-4 p-4 bg-slate-900 rounded-xl overflow-hidden">
-                  <div className="text-slate-400 text-xs font-mono mb-2 border-b border-slate-800 pb-2">
-                    Raw Data for ID: {company.id}
-                  </div>
-                  <pre className="text-xs text-green-400 font-mono overflow-x-auto whitespace-pre-wrap">
-                    {JSON.stringify(company, null, 2)}
-                  </pre>
-                </div>
-              )}
+            {/* Notes Section with Top Border (The "White Line") */}
+            <div className="pt-6 mt-auto border-t border-slate-100">
+              <h4 className="flex items-center gap-2 font-heading font-semibold text-slate-900 mb-3">
+                 <StickyNote size={16} className="text-primary-500" />
+                 Eigene Notizen
+              </h4>
+              <textarea
+                value={note}
+                onChange={(e) => onUpdateNote(e.target.value)}
+                className="w-full min-h-[100px] p-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-primary-300 focus:ring-4 focus:ring-primary-50/50 outline-none transition-all text-sm text-slate-700 placeholder:text-slate-400 resize-y"
+                placeholder="Hier persönliche Anmerkungen zum Unternehmen eintragen... (wird automatisch gespeichert)"
+              />
             </div>
 
           </div>

@@ -52,6 +52,16 @@ const App: React.FC = () => {
     }
   });
 
+  // Persist Notes
+  const [notes, setNotes] = useState<Record<string, string>>(() => {
+    try {
+      const stored = localStorage.getItem('companyNotes');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
+
   // Fetch Data
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -97,6 +107,11 @@ const App: React.FC = () => {
     localStorage.setItem('appliedCompanies', JSON.stringify([...appliedIds]));
   }, [appliedIds]);
 
+  // Persist Notes Effect
+  useEffect(() => {
+    localStorage.setItem('companyNotes', JSON.stringify(notes));
+  }, [notes]);
+
   // Handle View
   const handleViewCompany = (company: Company) => {
     setViewedIds(prev => new Set(prev).add(company.id));
@@ -113,6 +128,13 @@ const App: React.FC = () => {
       }
       return newSet;
     });
+  };
+
+  const handleUpdateNote = (id: string, text: string) => {
+    setNotes(prev => ({
+      ...prev,
+      [id]: text
+    }));
   };
 
   const resetViewed = () => {
@@ -410,6 +432,8 @@ const App: React.FC = () => {
           company={selectedCompany} 
           isApplied={appliedIds.has(selectedCompany.id)}
           onToggleApplied={() => handleToggleApplied(selectedCompany.id)}
+          note={notes[selectedCompany.id] || ''}
+          onUpdateNote={(text) => handleUpdateNote(selectedCompany.id, text)}
           onClose={() => setSelectedCompany(null)} 
         />
       )}
